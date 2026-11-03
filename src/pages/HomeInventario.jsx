@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { productosIniciales } from "../data/inventarioData";
+import {
+  productosIniciales,
+  CATEGORIAS_INVENTARIO,
+  ESTADO_INICIAL_PRODUCTO,
+  UNIDADES_MEDIDA,
+} from "../data/inventarioData";
 import KpiCard from "../components/KpiCard";
 import {
   esStockCritico,
@@ -13,21 +18,13 @@ function HomeInventario() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todas");
   const [soloCriticos, setSoloCriticos] = useState(false);
 
-  // Estados para formulario de nuevo producto
-  const [nuevoProducto, setNuevoProducto] = useState({
-    sku: "",
-    nombre: "",
-    categoria: "Abarrotes",
-    precio: "",
-    stock: "",
-    stockMinimo: "",
-    unidad: "Unidad",
-    ubicacion: "Bodega Central",
-  });
+  // Estado centralizado para el formulario de nuevo producto
+  const [nuevoProducto, setNuevoProducto] = useState(ESTADO_INICIAL_PRODUCTO);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mensajeFormulario, setMensajeFormulario] = useState(null); // Feedback visual en lugar de alert()
 
-  // Lista de categorías únicas para el filtro
-  const categorias = ["Todas", ...new Set(productosIniciales.map((p) => p.categoria))];
+  // Categorías centralizadas derivadas de la fuente de verdad
+  const categorias = ["Todas", ...CATEGORIAS_INVENTARIO];
 
   // Modificar stock rápidamente (+ o -)
   const modificarStock = (id, delta) => {
@@ -42,18 +39,52 @@ function HomeInventario() {
     );
   };
 
-  // Manejo de envío de nuevo producto
+  // Manejo de envío de nuevo producto con validaciones robustas
   const handleCrearProducto = (e) => {
     e.preventDefault();
-    if (!nuevoProducto.sku || !nuevoProducto.nombre || !nuevoProducto.precio || !nuevoProducto.stock) {
-      alert("Por favor completa los campos obligatorios.");
+    setMensajeFormulario(null);
+
+    // Validación de campos requeridos (Semana 2: Nombre, Marca, Categoría)
+    if (
+      !nuevoProducto.sku.trim() ||
+      !nuevoProducto.nombre.trim() ||
+      !nuevoProducto.marca.trim() ||
+      !nuevoProducto.precio ||
+      !nuevoProducto.stock
+    ) {
+      setMensajeFormulario({
+        tipo: "danger",
+        texto: "Por favor completa todos los campos obligatorios (*), incluyendo la Marca.",
+      });
+      return;
+    }
+
+    // Validación contra números negativos
+    if (Number(nuevoProducto.precio) <= 0 || Number(nuevoProducto.stock) < 0) {
+      setMensajeFormulario({
+        tipo: "danger",
+        texto: "El precio debe ser mayor a 0 y el stock no puede ser negativo.",
+      });
+      return;
+    }
+
+    // Validación de SKU duplicado
+    const skuExiste = productos.some(
+      (p) => p.sku.toUpperCase() === nuevoProducto.sku.trim().toUpperCase()
+    );
+    if (skuExiste) {
+      setMensajeFormulario({
+        tipo: "danger",
+        texto: `El código SKU "${nuevoProducto.sku.toUpperCase()}" ya está registrado en el inventario.`,
+      });
       return;
     }
 
     const itemCreado = {
       id: Date.now(),
-      sku: nuevoProducto.sku.toUpperCase(),
-      nombre: nuevoProducto.nombre,
+      sku: nuevoProducto.sku.trim().toUpperCase(),
+      nombre: nuevoProducto.nombre.trim(),
+      marca: nuevoProducto.marca.trim(),
       categoria: nuevoProducto.categoria,
       precio: Number(nuevoProducto.precio),
       stock: Number(nuevoProducto.stock),
@@ -63,17 +94,11 @@ function HomeInventario() {
     };
 
     setProductos([itemCreado, ...productos]);
-    setNuevoProducto({
-      sku: "",
-      nombre: "",
-      categoria: "Abarrotes",
-      precio: "",
-      stock: "",
-      stockMinimo: "",
-      unidad: "Unidad",
-      ubicacion: "Bodega Central",
+    setNuevoProducto(ESTADO_INICIAL_PRODUCTO);
+    setMensajeFormulario({
+      tipo: "success",
+      texto: `¡Producto "${itemCreado.nombre}" (${itemCreado.marca}) registrado con éxito!`,
     });
-    setMostrarFormulario(false);
   };
 
   // Filtrado de productos
@@ -156,9 +181,26 @@ function HomeInventario() {
             <h5 className="card-title fw-bold text-success mb-3">
               Registrar Nuevo Producto en Inventario
             </h5>
+
+            {/* Alerta de validación visible (reemplaza alert() del navegador) */}
+            {mensajeFormulario && (
+              <div
+                className={`alert alert-${mensajeFormulario.tipo} alert-dismissible fade show`}
+                role="alert"
+              >
+                {mensajeFormulario.texto}
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setMensajeFormulario(null)}
+                  aria-label="Cerrar"
+                ></button>
+              </div>
+            )}
+
             <form onSubmit={handleCrearProducto}>
               <div className="row g-3">
-                <div className="col-md-3">
+                <div className="col-md-2">
                   <label className="form-label small fw-semibold">Código SKU *</label>
                   <input
                     type="text"
@@ -171,7 +213,8 @@ function HomeInventario() {
                     required
                   />
                 </div>
-                <div className="col-md-5">
+
+                <div className="col-md-4">
                   <label className="form-label small fw-semibold">Nombre del Producto *</label>
                   <input
                     type="text"
@@ -184,7 +227,23 @@ function HomeInventario() {
                     required
                   />
                 </div>
-                <div className="col-md-4">
+
+                {/* Campo Marca: Requerimiento obligatorio Semana 2 */}
+                <div className="col-md-3">
+                  <label className="form-label small fw-semibold">Marca *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Ej: Carozzi / Colun"
+                    value={nuevoProducto.marca}
+                    onChange={(e) =>
+                      setNuevoProducto({ ...nuevoProducto, marca: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="col-md-3">
                   <label className="form-label small fw-semibold">Categoría *</label>
                   <select
                     className="form-select"
@@ -193,18 +252,19 @@ function HomeInventario() {
                       setNuevoProducto({ ...nuevoProducto, categoria: e.target.value })
                     }
                   >
-                    <option value="Abarrotes">Abarrotes</option>
-                    <option value="Lácteos">Lácteos</option>
-                    <option value="Frutas y Verduras">Frutas y Verduras</option>
-                    <option value="Carnicería">Carnicería</option>
-                    <option value="Limpieza">Limpieza</option>
-                    <option value="Panadería">Panadería</option>
+                    {CATEGORIAS_INVENTARIO.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
                   </select>
                 </div>
+
                 <div className="col-md-3">
                   <label className="form-label small fw-semibold">Precio Unitario (CLP) *</label>
                   <input
                     type="number"
+                    min="1"
                     className="form-control"
                     placeholder="Ej: 1290"
                     value={nuevoProducto.precio}
@@ -214,10 +274,12 @@ function HomeInventario() {
                     required
                   />
                 </div>
-                <div className="col-md-3">
+
+                <div className="col-md-2">
                   <label className="form-label small fw-semibold">Stock Inicial *</label>
                   <input
                     type="number"
+                    min="0"
                     className="form-control"
                     placeholder="Ej: 50"
                     value={nuevoProducto.stock}
@@ -227,37 +289,61 @@ function HomeInventario() {
                     required
                   />
                 </div>
-                <div className="col-md-3">
-                  <label className="form-label small fw-semibold">Stock Mínimo (Alerta)</label>
+
+                <div className="col-md-2">
+                  <label className="form-label small fw-semibold">Stock Mínimo</label>
                   <input
                     type="number"
+                    min="0"
                     className="form-control"
-                    placeholder="Ej: 15"
+                    placeholder="Ej: 10"
                     value={nuevoProducto.stockMinimo}
                     onChange={(e) =>
                       setNuevoProducto({ ...nuevoProducto, stockMinimo: e.target.value })
                     }
                   />
                 </div>
+
+                <div className="col-md-2">
+                  <label className="form-label small fw-semibold">Unidad</label>
+                  <select
+                    className="form-select"
+                    value={nuevoProducto.unidad}
+                    onChange={(e) =>
+                      setNuevoProducto({ ...nuevoProducto, unidad: e.target.value })
+                    }
+                  >
+                    {UNIDADES_MEDIDA.map((u) => (
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="col-md-3">
                   <label className="form-label small fw-semibold">Ubicación</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Ej: Pasillo 2"
+                    placeholder="Ej: Pasillo 3"
                     value={nuevoProducto.ubicacion}
                     onChange={(e) =>
                       setNuevoProducto({ ...nuevoProducto, ubicacion: e.target.value })
                     }
                   />
                 </div>
+
                 <div className="col-12 text-end mt-3">
                   <button
                     type="button"
                     className="btn btn-outline-secondary me-2"
-                    onClick={() => setMostrarFormulario(false)}
+                    onClick={() => {
+                      setMostrarFormulario(false);
+                      setMensajeFormulario(null);
+                    }}
                   >
-                    Cancelar
+                    Cerrar
                   </button>
                   <button type="submit" className="btn btn-success fw-semibold">
                     Guardar Producto
@@ -343,6 +429,7 @@ function HomeInventario() {
               <tr>
                 <th scope="col">SKU</th>
                 <th scope="col">Producto</th>
+                <th scope="col">Marca</th>
                 <th scope="col">Categoría</th>
                 <th scope="col">Ubicación</th>
                 <th scope="col" className="text-end">Precio (CLP)</th>
@@ -354,7 +441,7 @@ function HomeInventario() {
             <tbody>
               {productosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-4 text-muted">
+                  <td colSpan="9" className="text-center py-4 text-muted">
                     No se encontraron productos que coincidan con los criterios de búsqueda.
                   </td>
                 </tr>
@@ -369,6 +456,9 @@ function HomeInventario() {
                       <td>
                         <strong>{item.nombre}</strong>
                         <div className="small text-muted">{item.unidad}</div>
+                      </td>
+                      <td>
+                        <span className="fw-semibold text-dark">{item.marca || "Genérica"}</span>
                       </td>
                       <td>
                         <span className="badge bg-light text-dark border">
