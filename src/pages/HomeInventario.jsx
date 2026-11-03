@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import useInventario from "../hooks/useInventario";
 import {
   CATEGORIAS_INVENTARIO,
@@ -83,12 +84,14 @@ function HomeInventario() {
             Administración centralizada de existencias y reposición para Supermercado Don Ahorro Eri Market.
           </p>
         </div>
-        <button
-          className={`btn ${mostrarFormulario ? "btn-secondary" : "btn-success"} fw-semibold`}
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
-        >
-          {mostrarFormulario ? "Cerrar Formulario" : "➕ Agregar Producto"}
-        </button>
+        <div className="d-flex flex-wrap gap-2">
+          <Link to="/nuevo-producto" className="btn btn-success fw-semibold shadow-sm">
+            ➕ Ingresar Artículo
+          </Link>
+          <Link to="/inventario" className="btn btn-outline-success fw-semibold">
+            📋 Ver Listado en Tabla
+          </Link>
+        </div>
       </div>
 
       {/* Tarjetas KPI modularizadas aplicando DRY */}

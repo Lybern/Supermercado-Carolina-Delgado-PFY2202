@@ -6,6 +6,8 @@ import Footer from "./components/Footer";
 
 // Vistas / Páginas
 import HomeInventario from "./pages/HomeInventario";
+import ListadoInventario from "./pages/ListadoInventario";
+import NuevoProducto from "./pages/NuevoProducto";
 import NuestrasTiendas from "./pages/NuestrasTiendas";
 import QuienesSomos from "./pages/QuienesSomos";
 import Contactanos from "./pages/Contactanos";
@@ -21,10 +23,14 @@ function App() {
         {/* Contenido Principal enrutado dinámicamente con React Router */}
         <main className="flex-grow-1 pb-4">
           <Routes>
-            {/* Ruta principal: Gestión de Inventario para Supermercado */}
+            {/* Panel Principal */}
             <Route path="/" element={<HomeInventario />} />
 
-            {/* Rutas adicionales según instrucciones específicas */}
+            {/* Requerimientos evaluativos Semana 2 Forma B */}
+            <Route path="/inventario" element={<ListadoInventario />} />
+            <Route path="/nuevo-producto" element={<NuevoProducto />} />
+
+            {/* Rutas institucionales adicionales */}
             <Route path="/tiendas" element={<NuestrasTiendas />} />
             <Route path="/quienes-somos" element={<QuienesSomos />} />
             <Route path="/contactanos" element={<Contactanos />} />
