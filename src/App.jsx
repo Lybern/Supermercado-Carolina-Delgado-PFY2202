@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router";
+import InventarioProvider from "./context/InventarioProvider";
 import Header from "./components/Header";
 import BottomNav from "./components/BottomNav";
 import Footer from "./components/Footer";
@@ -12,32 +13,34 @@ import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <div className="d-flex flex-column min-vh-100 bg-body-tertiary">
-      {/* Encabezado Superior con Identidad Institucional */}
-      <Header />
+    <InventarioProvider>
+      <div className="d-flex flex-column min-vh-100 bg-body-tertiary">
+        {/* Encabezado Superior con Identidad Institucional */}
+        <Header />
 
-      {/* Contenido Principal enrutado dinámicamente con React Router */}
-      <main className="flex-grow-1 pb-4">
-        <Routes>
-          {/* Ruta principal: Gestión de Inventario para Supermercado */}
-          <Route path="/" element={<HomeInventario />} />
+        {/* Contenido Principal enrutado dinámicamente con React Router */}
+        <main className="flex-grow-1 pb-4">
+          <Routes>
+            {/* Ruta principal: Gestión de Inventario para Supermercado */}
+            <Route path="/" element={<HomeInventario />} />
 
-          {/* Rutas adicionales según instrucciones específicas */}
-          <Route path="/tiendas" element={<NuestrasTiendas />} />
-          <Route path="/quienes-somos" element={<QuienesSomos />} />
-          <Route path="/contactanos" element={<Contactanos />} />
+            {/* Rutas adicionales según instrucciones específicas */}
+            <Route path="/tiendas" element={<NuestrasTiendas />} />
+            <Route path="/quienes-somos" element={<QuienesSomos />} />
+            <Route path="/contactanos" element={<Contactanos />} />
 
-          {/* Manejo explícito de rutas desconocidas (Error 404) */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
+            {/* Manejo explícito de rutas desconocidas (Error 404) */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
 
-      {/* Menú Inferior de Navegación Requerido por la Pauta Formativa */}
-      <BottomNav />
+        {/* Menú Inferior de Navegación Requerido por la Pauta Formativa */}
+        <BottomNav />
 
-      {/* Pie de página institucional */}
-      <Footer />
-    </div>
+        {/* Pie de página institucional */}
+        <Footer />
+      </div>
+    </InventarioProvider>
   );
 }
 

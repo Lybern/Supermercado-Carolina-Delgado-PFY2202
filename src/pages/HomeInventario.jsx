@@ -1,6 +1,6 @@
 import { useState } from "react";
+import useInventario from "../hooks/useInventario";
 import {
-  productosIniciales,
   CATEGORIAS_INVENTARIO,
   ESTADO_INICIAL_PRODUCTO,
   UNIDADES_MEDIDA,
@@ -13,7 +13,9 @@ import {
 } from "../utils/inventarioUtils";
 
 function HomeInventario() {
-  const [productos, setProductos] = useState(productosIniciales);
+  // Consumo del estado global mediante Context API y hook personalizado
+  const { productos, agregarProducto, modificarStock } = useInventario();
+
   const [busqueda, setBusqueda] = useState("");
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todas");
   const [soloCriticos, setSoloCriticos] = useState(false);
@@ -26,78 +28,25 @@ function HomeInventario() {
   // Categorías centralizadas derivadas de la fuente de verdad
   const categorias = ["Todas", ...CATEGORIAS_INVENTARIO];
 
-  // Modificar stock rápidamente (+ o -)
-  const modificarStock = (id, delta) => {
-    setProductos((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const nuevoStock = Math.max(0, item.stock + delta);
-          return { ...item, stock: nuevoStock };
-        }
-        return item;
-      })
-    );
-  };
-
-  // Manejo de envío de nuevo producto con validaciones robustas
+  // Manejo de envío de nuevo producto delegando la lógica al Context global
   const handleCrearProducto = (e) => {
     e.preventDefault();
     setMensajeFormulario(null);
 
-    // Validación de campos requeridos (Semana 2: Nombre, Marca, Categoría)
-    if (
-      !nuevoProducto.sku.trim() ||
-      !nuevoProducto.nombre.trim() ||
-      !nuevoProducto.marca.trim() ||
-      !nuevoProducto.precio ||
-      !nuevoProducto.stock
-    ) {
+    const resultado = agregarProducto(nuevoProducto);
+
+    if (!resultado.exito) {
       setMensajeFormulario({
         tipo: "danger",
-        texto: "Por favor completa todos los campos obligatorios (*), incluyendo la Marca.",
+        texto: resultado.mensaje,
       });
       return;
     }
 
-    // Validación contra números negativos
-    if (Number(nuevoProducto.precio) <= 0 || Number(nuevoProducto.stock) < 0) {
-      setMensajeFormulario({
-        tipo: "danger",
-        texto: "El precio debe ser mayor a 0 y el stock no puede ser negativo.",
-      });
-      return;
-    }
-
-    // Validación de SKU duplicado
-    const skuExiste = productos.some(
-      (p) => p.sku.toUpperCase() === nuevoProducto.sku.trim().toUpperCase()
-    );
-    if (skuExiste) {
-      setMensajeFormulario({
-        tipo: "danger",
-        texto: `El código SKU "${nuevoProducto.sku.toUpperCase()}" ya está registrado en el inventario.`,
-      });
-      return;
-    }
-
-    const itemCreado = {
-      id: Date.now(),
-      sku: nuevoProducto.sku.trim().toUpperCase(),
-      nombre: nuevoProducto.nombre.trim(),
-      marca: nuevoProducto.marca.trim(),
-      categoria: nuevoProducto.categoria,
-      precio: Number(nuevoProducto.precio),
-      stock: Number(nuevoProducto.stock),
-      stockMinimo: Number(nuevoProducto.stockMinimo) || 10,
-      unidad: nuevoProducto.unidad,
-      ubicacion: nuevoProducto.ubicacion || "Bodega Central",
-    };
-
-    setProductos([itemCreado, ...productos]);
     setNuevoProducto(ESTADO_INICIAL_PRODUCTO);
     setMensajeFormulario({
       tipo: "success",
-      texto: `¡Producto "${itemCreado.nombre}" (${itemCreado.marca}) registrado con éxito!`,
+      texto: `¡Producto "${resultado.producto.nombre}" (${resultado.producto.marca}) registrado con éxito en el estado global!`,
     });
   };
 
