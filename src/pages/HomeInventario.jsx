@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { productosIniciales } from "../data/inventarioData";
+import KpiCard from "../components/KpiCard";
 
 function HomeInventario() {
   const [productos, setProductos] = useState(productosIniciales);
@@ -111,49 +112,36 @@ function HomeInventario() {
         </button>
       </div>
 
-      {/* Tarjetas KPI */}
+      {/* Tarjetas KPI modularizadas aplicando DRY */}
       <div className="row g-3 mb-4">
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="card shadow-sm border-0 border-start border-4 border-primary h-100">
-            <div className="card-body">
-              <span className="text-muted small fw-semibold text-uppercase">Total Productos</span>
-              <h3 className="fw-bold my-1 text-primary">{totalItems}</h3>
-              <small className="text-muted">En catálogo activo</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="card shadow-sm border-0 border-start border-4 border-danger h-100">
-            <div className="card-body">
-              <span className="text-muted small fw-semibold text-uppercase">Stock Bajo / Crítico</span>
-              <h3 className="fw-bold my-1 text-danger">{itemsCriticos}</h3>
-              <small className="text-muted">Requieren reposición</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="card shadow-sm border-0 border-start border-4 border-success h-100">
-            <div className="card-body">
-              <span className="text-muted small fw-semibold text-uppercase">Valor del Inventario</span>
-              <h3 className="fw-bold my-1 text-success">
-                ${valorTotalInventario.toLocaleString("es-CL")}
-              </h3>
-              <small className="text-muted">Valorización estimada</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div className="card shadow-sm border-0 border-start border-4 border-info h-100">
-            <div className="card-body">
-              <span className="text-muted small fw-semibold text-uppercase">Categorías</span>
-              <h3 className="fw-bold my-1 text-info">{categorias.length - 1}</h3>
-              <small className="text-muted">Secciones habilitadas</small>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          titulo="Total Productos"
+          valor={totalItems}
+          color="primary"
+          descripcion="En catálogo activo"
+          icono="📦"
+        />
+        <KpiCard
+          titulo="Stock Bajo / Crítico"
+          valor={itemsCriticos}
+          color="danger"
+          descripcion="Requieren reposición"
+          icono="⚠️"
+        />
+        <KpiCard
+          titulo="Valor del Inventario"
+          valor={`$${valorTotalInventario.toLocaleString("es-CL")}`}
+          color="success"
+          descripcion="Valorización estimada"
+          icono="💰"
+        />
+        <KpiCard
+          titulo="Categorías"
+          valor={categorias.length - 1}
+          color="info"
+          descripcion="Secciones habilitadas"
+          icono="🏷️"
+        />
       </div>
 
       {/* Formulario desplegable para nuevo producto */}
