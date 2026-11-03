@@ -1,33 +1,45 @@
-# Supermercado Don Ahorro - Gestión de Inventario 🛒
+# Supermercado Don Ahorro (Eri Market) - Control de Inventario 🛒🐾
 
-Proyecto desarrollado para la **Evaluación Formativa Semana 1** de la asignatura **Desarrollo Frontend II (PFY2202)** en Duoc UC.
+Proyecto desarrollado para la **Evaluación Formativa Semana 2 (Forma B)** de la asignatura **Desarrollo Frontend II (PFY2202)** en Duoc UC.
 
 - **Estudiante:** Carolina Delgado
-- **Repositorio:** [Exp1_S1_FrontendII](https://github.com/Lybern/Exp1_S1_FrontendII)
-- **Tecnologías:** React 19, React Router (v8), Bootstrap 5, Vite
+- **Repositorio Oficial:** [Supermercado-Carolina-Delgado-PFY2202](https://github.com/Lybern/Supermercado-Carolina-Delgado-PFY2202)
+- **Stack Tecnológico:** React 19, React Router, Context API, Bootstrap 5, Vite
 
 ---
 
-## 📌 Requerimientos Desarrollados
+## 🎯 Requerimientos y Mejoras Implementadas (Semana 2 - Forma B)
 
-1. **Página Principal (Home) - Gestión de Inventario:**
-   - Métricas en tiempo real (Total de productos, stock crítico, valor total del inventario y categorías).
-   - Tabla interactiva con búsqueda por texto y SKU, filtrado por categorías y filtro de existencias críticas.
-   - Ajuste rápido de stock (+1 / -1) y formulario para registrar nuevos productos.
-2. **Menú Inferior de Navegación (Bottom Navigation):**
-   - Barra de navegación ubicada en la parte inferior del sitio (`BottomNav.jsx`), implementada con `NavLink` de **React Router** para evitar recargas de página y mantener la experiencia SPA.
-3. **Páginas Adicionales Seleccionadas:**
-   - **Nuestras Tiendas (`/tiendas`):** Red de sucursales, horarios, teléfonos, servicios y bodega central.
-   - **Quiénes Somos (`/quienes-somos`):** Historia, misión, visión y pilares de calidad.
-   - **Contáctanos (`/contactanos`):** Canales de atención y formulario interactivo.
+### 1. Gestión de Estado Global con Context API (40 pts)
+- **`InventarioContext.js`:** Contexto centralizado creado de forma modular y desacoplada para soporte de Fast Refresh.
+- **`InventarioProvider.jsx`:** Proveedor que envuelve toda la aplicación (`App.jsx`). Administra la lista de productos en memoria asegurando que los datos persistan durante la navegación entre rutas.
+- **`useInventario.js`:** Hook personalizado para consumo directo del estado global con validación de contexto activo.
+- **Inmutabilidad:** Operaciones de agregado (`agregarProducto`) y ajuste de existencias (`modificarStock`) implementadas mediante técnicas de actualización inmutable (`[...previos, nuevo]`, `.map()`).
+
+### 2. Atributos Requeridos por Caso Supermercado (Forma B)
+- **Campo Obligatorio `marca`:** Se incorporó el atributo `marca` tanto en la fuente de datos base ([`inventarioData.js`](file:///C:/Users/Carolina/Desktop/Noveno%20bimestre/Desarrollo%20Frontend%20II/Exp1%20S2/Exp1_S2_CarolinaDelgado/src/data/inventarioData.js)), como en las columnas de la tabla y en el formulario de registro.
+- **Tipos de producto (categorías):** Centralizados en una constante única para evitar discrepancias.
+
+### 3. Vistas Dedicadas y Enrutamiento con React Router
+- **`/` (Panel de Control):** Vista general con métricas ejecutivas, accesos rápidos y panel de gestión.
+- **`/inventario` (Listado en Tabla):** Vista tabular dedicada que consume el estado global, con KPIs ([`KpiCard.jsx`](file:///C:/Users/Carolina/Desktop/Noveno%20bimestre/Desarrollo%20Frontend%20II/Exp1%20S2/Exp1_S2_CarolinaDelgado/src/components/KpiCard.jsx)), filtros dinámicos por texto/categoría, alerta de stock crítico y botones de ajuste de existencias.
+- **`/nuevo-producto` (Ingresar Artículos):** Página independiente con formulario estructurado, validaciones en tiempo real (SKU único, obligatoriedad, control contra números negativos) y alertas visuales Bootstrap.
+- **`/tiendas`, `/quienes-somos`, `/contactanos`:** Páginas informativas del supermercado.
+- **`*` (Error 404):** Vista amigable [`NotFound.jsx`](file:///C:/Users/Carolina/Desktop/Noveno%20bimestre/Desarrollo%20Frontend%20II/Exp1%20S2/Exp1_S2_CarolinaDelgado/src/pages/NotFound.jsx) para destinos no reconocidos.
+
+### 4. Modularidad y Buenas Prácticas (Retroalimentación Docente)
+- **Principio DRY en KPIs:** Componente reutilizable [`KpiCard.jsx`](file:///C:/Users/Carolina/Desktop/Noveno%20bimestre/Desarrollo%20Frontend%20II/Exp1%20S2/Exp1_S2_CarolinaDelgado/src/components/KpiCard.jsx) parametrizado por props.
+- **Lógica de negocio unificada:** [`inventarioUtils.js`](file:///C:/Users/Carolina/Desktop/Noveno%20bimestre/Desarrollo%20Frontend%20II/Exp1%20S2/Exp1_S2_CarolinaDelgado/src/utils/inventarioUtils.js) centraliza `esStockCritico`, `obtenerEstadoStock` y `formatearMoneda`.
+- **Generación de ID segura:** Uso de `crypto.randomUUID()` para evitar colisiones.
 
 ---
 
 ## 🚀 Instalación y Ejecución Local
 
-1. **Clonar o abrir la carpeta del proyecto en Visual Studio Code:**
+1. **Clonar el repositorio:**
    ```bash
-   cd Exp1_S1_FrontendII
+   git clone https://github.com/Lybern/Supermercado-Carolina-Delgado-PFY2202.git
+   cd Supermercado-Carolina-Delgado-PFY2202
    ```
 
 2. **Instalar dependencias:**
@@ -35,38 +47,46 @@ Proyecto desarrollado para la **Evaluación Formativa Semana 1** de la asignatur
    npm install
    ```
 
-3. **Iniciar el servidor de desarrollo:**
+3. **Iniciar el servidor local en modo desarrollo:**
    ```bash
    npm run dev
    ```
 
-4. **Abrir en el navegador:**
-   Accede a la URL indicada en la consola (por defecto `http://localhost:5173`).
+4. **Compilar para producción:**
+   ```bash
+   npm run build
+   ```
 
 ---
 
 ## 📁 Estructura del Proyecto
 
 ```text
-Exp1_S1_FrontendII/
-├── public/
-├── src/
-│   ├── components/
-│   │   ├── Header.jsx       # Encabezado institucional
-│   │   ├── BottomNav.jsx    # Menú inferior con React Router NavLink
-│   │   └── Footer.jsx       # Pie de página y créditos
-│   ├── pages/
-│   │   ├── HomeInventario.jsx # Home: Control de existencias y catálogo
-│   │   ├── NuestrasTiendas.jsx # Información de sucursales
-│   │   ├── QuienesSomos.jsx    # Misión, visión e historia
-│   │   └── Contactanos.jsx     # Formulario y canales de soporte
-│   ├── data/
-│   │   └── inventarioData.js   # Datos iniciales del supermercado
-│   ├── App.jsx             # Enrutamiento principal con Routes y Route
-│   ├── main.jsx            # Punto de entrada y BrowserRouter
-│   └── index.css           # Estilos personalizados y utilidades
-├── index.html
-├── package.json
-├── vite.config.js
-└── README.md
+src/
+├── components/
+│   ├── BottomNav.jsx         # Menú inferior con React Router NavLink
+│   ├── Header.jsx            # Encabezado institucional y navegación superior
+│   ├── Footer.jsx            # Pie de página institucional
+│   ├── KpiCard.jsx           # Tarjeta modular reutilizable de indicadores (DRY)
+│   └── OrangeTabbyCat.jsx    # Mascota institucional del supermercado
+├── context/
+│   ├── InventarioContext.js  # Contexto global
+│   └── InventarioProvider.jsx # Proveedor de estado global e inmutabilidad
+├── data/
+│   └── inventarioData.js     # Datos iniciales, categorías y constantes
+├── hooks/
+│   └── useInventario.js      # Hook personalizado para consumo del contexto
+├── pages/
+│   ├── HomeInventario.jsx    # Panel de control de inventario
+│   ├── ListadoInventario.jsx # Vista dedicada: Listado en tabla de artículos
+│   ├── NuevoProducto.jsx     # Vista dedicada: Formulario de ingreso de artículos
+│   ├── NuestrasTiendas.jsx   # Información de sucursales y bodegas
+│   ├── QuienesSomos.jsx      # Misión, visión e historia institucional
+│   ├── Contactanos.jsx       # Canales de soporte y formulario
+│   └── NotFound.jsx          # Manejo de error 404 para rutas desconocidas
+├── utils/
+│   └── inventarioUtils.js    # Funciones utilitarias y reglas de stock centralizadas
+├── App.jsx                   # Layout global, enrutamiento y envoltura con Context
+├── main.jsx                  # Entrada principal y BrowserRouter
+└── index.css                 # Estilos y temas
 ```
