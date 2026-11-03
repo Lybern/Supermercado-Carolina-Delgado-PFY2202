@@ -8,6 +8,7 @@ import HomeInventario from "./pages/HomeInventario";
 import NuestrasTiendas from "./pages/NuestrasTiendas";
 import QuienesSomos from "./pages/QuienesSomos";
 import Contactanos from "./pages/Contactanos";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -26,8 +27,8 @@ function App() {
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/contactanos" element={<Contactanos />} />
 
-          {/* Redirección por defecto */}
-          <Route path="*" element={<HomeInventario />} />
+          {/* Manejo explícito de rutas desconocidas (Error 404) */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 

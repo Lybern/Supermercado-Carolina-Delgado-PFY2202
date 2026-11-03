@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { productosIniciales } from "../data/inventarioData";
 import KpiCard from "../components/KpiCard";
+import {
+  esStockCritico,
+  obtenerEstadoStock,
+  formatearMoneda,
+} from "../utils/inventarioUtils";
 
 function HomeInventario() {
   const [productos, setProductos] = useState(productosIniciales);
@@ -78,15 +83,15 @@ function HomeInventario() {
       p.sku.toLowerCase().includes(busqueda.toLowerCase());
     const coincideCategoria =
       categoriaSeleccionada === "Todas" || p.categoria === categoriaSeleccionada;
-    const esCritico = p.stock <= p.stockMinimo;
+    const esCritico = esStockCritico(p);
     const coincideCritico = soloCriticos ? esCritico : true;
 
     return coincideTexto && coincideCategoria && coincideCritico;
   });
 
-  // Métricas para los KPI cards
+  // Métricas para los KPI cards (reglas centralizadas)
   const totalItems = productos.length;
-  const itemsCriticos = productos.filter((p) => p.stock <= p.stockMinimo).length;
+  const itemsCriticos = productos.filter(esStockCritico).length;
   const valorTotalInventario = productos.reduce(
     (acc, curr) => acc + curr.precio * curr.stock,
     0
@@ -130,7 +135,7 @@ function HomeInventario() {
         />
         <KpiCard
           titulo="Valor del Inventario"
-          valor={`$${valorTotalInventario.toLocaleString("es-CL")}`}
+          valor={formatearMoneda(valorTotalInventario)}
           color="success"
           descripcion="Valorización estimada"
           icono="💰"
@@ -355,8 +360,8 @@ function HomeInventario() {
                 </tr>
               ) : (
                 productosFiltrados.map((item) => {
-                  const esCritico = item.stock <= item.stockMinimo;
-                  const esMedio = item.stock <= item.stockMinimo * 1.5 && !esCritico;
+                  const estadoInfo = obtenerEstadoStock(item);
+                  const esCritico = esStockCritico(item);
 
                   return (
                     <tr key={item.id} className={esCritico ? "table-danger-subtle" : ""}>
@@ -372,20 +377,16 @@ function HomeInventario() {
                       </td>
                       <td className="small text-muted">{item.ubicacion}</td>
                       <td className="text-end fw-semibold">
-                        ${item.precio.toLocaleString("es-CL")}
+                        {formatearMoneda(item.precio)}
                       </td>
                       <td className="text-center">
                         <span className="fw-bold fs-6">{item.stock}</span>
                         <div className="small text-muted">Mín: {item.stockMinimo}</div>
                       </td>
                       <td className="text-center">
-                        {esCritico ? (
-                          <span className="badge bg-danger">⚠️ Crítico</span>
-                        ) : esMedio ? (
-                          <span className="badge bg-warning text-dark">Alerta</span>
-                        ) : (
-                          <span className="badge bg-success">Óptimo</span>
-                        )}
+                        <span className={`badge ${estadoInfo.badgeClass}`}>
+                          {esCritico ? "⚠️ " : ""}{estadoInfo.estado}
+                        </span>
                       </td>
                       <td className="text-center">
                         <div className="btn-group btn-group-sm">
