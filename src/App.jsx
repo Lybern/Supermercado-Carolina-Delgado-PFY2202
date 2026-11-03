@@ -1,0 +1,43 @@
+import { Routes, Route } from "react-router";
+import Header from "./components/Header";
+import BottomNav from "./components/BottomNav";
+import Footer from "./components/Footer";
+
+// Vistas / Páginas
+import HomeInventario from "./pages/HomeInventario";
+import NuestrasTiendas from "./pages/NuestrasTiendas";
+import QuienesSomos from "./pages/QuienesSomos";
+import Contactanos from "./pages/Contactanos";
+
+function App() {
+  return (
+    <div className="d-flex flex-column min-vh-100 bg-body-tertiary">
+      {/* Encabezado Superior con Identidad Institucional */}
+      <Header />
+
+      {/* Contenido Principal enrutado dinámicamente con React Router */}
+      <main className="flex-grow-1 pb-4">
+        <Routes>
+          {/* Ruta principal: Gestión de Inventario para Supermercado */}
+          <Route path="/" element={<HomeInventario />} />
+
+          {/* Rutas adicionales según instrucciones específicas */}
+          <Route path="/tiendas" element={<NuestrasTiendas />} />
+          <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/contactanos" element={<Contactanos />} />
+
+          {/* Redirección por defecto */}
+          <Route path="*" element={<HomeInventario />} />
+        </Routes>
+      </main>
+
+      {/* Menú Inferior de Navegación Requerido por la Pauta Formativa */}
+      <BottomNav />
+
+      {/* Pie de página institucional */}
+      <Footer />
+    </div>
+  );
+}
+
+export default App;
